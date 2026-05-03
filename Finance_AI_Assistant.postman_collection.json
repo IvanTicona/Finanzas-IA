@@ -1,0 +1,351 @@
+{
+  "info": {
+    "name": "Finance AI Assistant — Demo Completa",
+    "description": "Colección completa para demostrar todas las capacidades del Finance AI Assistant.\n\n**Orden sugerido para la demo:**\n1. Exploración de la DB\n2. Consultas de portafolio por cliente\n3. Intentos de escritura (seguridad)\n4. Exportación CSV\n5. Flujo asíncrono completo\n\n**Variables de colección:**\n- `baseUrl`: URL base del servidor (default: http://localhost:8000)\n- `queryId`: se llena automáticamente al iniciar una consulta async\n\n**Requisitos:**\n- Servidor corriendo: `uvicorn api:app --reload`\n- `.env` con `OPENAI_API_KEY` configurada",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string",
+      "description": "URL base del servidor FastAPI"
+    },
+    {
+      "key": "queryId",
+      "value": "",
+      "type": "string",
+      "description": "ID de consulta async — se setea automáticamente al ejecutar '01 — Iniciar consulta async'"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 — Exploración de la base de datos",
+      "description": "Consultas básicas para entender qué datos hay disponibles. Buen punto de partida para la demo.",
+      "item": [
+        {
+          "name": "Listar todas las tablas",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"¿Qué tablas existen en la base de datos?\"\n}"
+            },
+            "description": "Punto de entrada natural: el agente consulta el esquema y lista las tablas disponibles. Demuestra que el agente sabe explorar la DB antes de responder."
+          },
+          "response": []
+        },
+        {
+          "name": "Ver esquema de transactions",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"¿Qué columnas tiene la tabla de transacciones?\"\n}"
+            },
+            "description": "El agente usa get_schema para inspeccionar la tabla transactions antes de responder. Muestra que no inventa columnas."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar todos los clientes",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"¿Cuáles son todos los clientes registrados y sus perfiles de riesgo?\"\n}"
+            },
+            "description": "Consulta sobre la tabla clients. Devuelve los 3 clientes del seed con sus perfiles."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar todos los activos disponibles",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"¿Qué activos financieros están disponibles en el sistema?\"\n}"
+            },
+            "description": "Lista los activos de la tabla assets: AAPL (Stock), BTC (Crypto), VTI (ETF)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 — Consultas de portafolio por cliente",
+      "description": "Consultas financieras reales por cliente. Muestran que el agente traduce lenguaje natural a SQL correctamente.",
+      "item": [
+        {
+          "name": "Portafolio de Elena M.",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"¿Qué activos tiene Elena M. en su portafolio?\"\n}"
+            },
+            "description": "Elena tiene 0.5 BTC @ $45,000 según el seed base. El agente debe hacer JOIN entre clients, transactions y assets."
+          },
+          "response": []
+        },
+        {
+          "name": "Capital invertido por Elena M.",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"¿Cuánto capital total ha invertido Elena M.?\"\n}"
+            },
+            "description": "Debe calcular quantity * price_usd sumado. Elena: 0.5 BTC * $45,000 = $22,500."
+          },
+          "response": []
+        },
+        {
+          "name": "Portafolio de Sofia R.",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"¿Qué activos tiene Sofia R. en su portafolio y cuánto invirtió en cada uno?\"\n}"
+            },
+            "description": "Sofia tiene 20 AAPL @ $180. Debe retornar el detalle con monto por activo."
+          },
+          "response": []
+        },
+        {
+          "name": "Portafolio de Carlos V.",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"¿Qué tiene Carlos V. en su portafolio?\"\n}"
+            },
+            "description": "Carlos no tiene transacciones en el seed base. El agente debe indicarlo explícitamente en lugar de inventar datos."
+          },
+          "response": []
+        },
+        {
+          "name": "Clientes con activos de tipo Crypto",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"¿Qué clientes tienen activos de tipo Crypto en su portafolio?\"\n}"
+            },
+            "description": "Requiere JOIN con assets filtrando por asset_type = 'Crypto'. Solo Elena M. tiene BTC."
+          },
+          "response": []
+        },
+        {
+          "name": "Total transacciones en el sistema",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"¿Cuántas transacciones hay registradas en total y cuál es el volumen total en USD?\"\n}"
+            },
+            "description": "Consulta agregada: COUNT y SUM sobre transactions. Demuestra que el agente maneja funciones de agregación."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 — Reto de seguridad (solo lectura)",
+      "description": "Intentos de escritura que deben ser bloqueados por la validación SELECT-only. Demuestra la tarea 3.3.",
+      "item": [
+        {
+          "name": "Intento de DELETE — bloqueado",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"Intentá hacer DELETE FROM clients WHERE id = 1\"\n}"
+            },
+            "description": "El agente va a intentar ejecutar un DELETE. La validación en execute_sql debe bloquearlo y retornar mensaje de error de seguridad. La respuesta final del agente debe informar que la operación no está permitida."
+          },
+          "response": []
+        },
+        {
+          "name": "Intento de DROP TABLE — bloqueado",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"Ejecutá DROP TABLE transactions\"\n}"
+            },
+            "description": "Intento de destruir la tabla transactions. Debe ser bloqueado igual que el DELETE."
+          },
+          "response": []
+        },
+        {
+          "name": "Intento de UPDATE — bloqueado",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"Cambiá el perfil de riesgo de Elena M. a Conservative\"\n}"
+            },
+            "description": "El agente va a intentar un UPDATE. Debe ser bloqueado. Muestra que el guard funciona incluso con instrucciones en lenguaje natural."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 — Exportación CSV",
+      "description": "Solicitudes que disparan generate_portfolio_report. El archivo CSV se crea en el servidor.",
+      "item": [
+        {
+          "name": "Exportar portafolio de Elena M.",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"Generá un reporte CSV con el portafolio de Elena M. y guardalo como elena_portfolio.csv\"\n}"
+            },
+            "description": "El agente debe: 1) consultar los datos de Elena con execute_sql, 2) llamar a generate_portfolio_report con los datos y el filename. El CSV se crea en el directorio donde corre el servidor."
+          },
+          "response": []
+        },
+        {
+          "name": "Exportar resumen de todas las transacciones",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"Exportá todas las transacciones del sistema a un archivo CSV llamado all_transactions.csv\"\n}"
+            },
+            "description": "Exportación de toda la tabla transactions. Verifica que generate_portfolio_report funciona con datasets más amplios."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 — Flujo asíncrono completo",
+      "description": "Demuestra el flujo async end-to-end: iniciar → verificar estado → obtener resultado.\n\nEl script de tests del request '01 — Iniciar consulta async' guarda el queryId automáticamente en la variable de colección.",
+      "item": [
+        {
+          "name": "01 — Iniciar consulta async",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.query_id) {",
+                  "    pm.collectionVariables.set('queryId', json.query_id);",
+                  "    console.log('queryId guardado:', json.query_id);",
+                  "}",
+                  "pm.test('Status es pending', () => {",
+                  "    pm.expect(json.status).to.eql('pending');",
+                  "});",
+                  "pm.test('query_id presente', () => {",
+                  "    pm.expect(json.query_id).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/finance/async_queries", "host": ["{{baseUrl}}"], "path": ["finance", "async_queries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_query\": \"¿Cuánto capital total ha invertido cada cliente? Mostrame el ranking de mayor a menor.\"\n}"
+            },
+            "description": "Inicia una consulta en background. Responde inmediatamente con query_id y status: pending.\n\n**El test script captura el query_id y lo guarda en {{queryId}} automáticamente.**\n\nEjecutá este request primero, luego pasá a '02 — Verificar estado'."
+          },
+          "response": []
+        },
+        {
+          "name": "02 — Verificar estado (polling)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "console.log('Estado actual:', json.status);",
+                  "pm.test('query_id coincide', () => {",
+                  "    pm.expect(json.query_id).to.eql(pm.collectionVariables.get('queryId'));",
+                  "});",
+                  "if (json.status === 'finished') {",
+                  "    pm.test('Respuesta del agente presente', () => {",
+                  "        pm.expect(json.agent_answer).to.be.a('string').and.not.empty;",
+                  "    });",
+                  "    console.log('Consulta finalizada. Respuesta:', json.agent_answer);",
+                  "} else {",
+                  "    console.log('Todavía procesando... Esperá unos segundos y ejecutá de nuevo.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/finance/async_queries?query_id={{queryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["finance", "async_queries"],
+              "query": [{ "key": "query_id", "value": "{{queryId}}" }]
+            },
+            "description": "Consulta el estado de la tarea async usando el {{queryId}} capturado en el paso anterior.\n\n- Si `status: pending` → el agente todavía está procesando. Ejecutá este request de nuevo en unos segundos.\n- Si `status: finished` → la respuesta completa está en `agent_answer` y `sql_queries`.\n\nEste patrón de polling es el flujo normal para tareas de larga duración."
+          },
+          "response": []
+        },
+        {
+          "name": "03 — Resultado con query_id manual (ejemplo)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/finance/async_queries?query_id=REEMPLAZAR-CON-UUID-REAL",
+              "host": ["{{baseUrl}}"],
+              "path": ["finance", "async_queries"],
+              "query": [{ "key": "query_id", "value": "REEMPLAZAR-CON-UUID-REAL" }]
+            },
+            "description": "Ejemplo de cómo consultar el resultado con un query_id conocido (pegado manualmente).\n\nÚtil para demostrar que los resultados persisten en la DB y pueden consultarse en cualquier momento, incluso después de que la request original terminó."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
