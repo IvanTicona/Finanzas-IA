@@ -58,8 +58,8 @@ def create_agent(conn: sqlite3.Connection, query_history: list[str] | None = Non
 
     report_tool = dspy.Tool(
         name="generate_portfolio_report",
-        desc="Guarda datos de un portafolio en un archivo CSV. "
-             "Recibe una lista de tuplas con los datos y el nombre del archivo de destino. "
+        desc="Guarda datos en un archivo CSV. "
+             "Pasá como data el resultado directo de execute_sql (el string que devuelve) y como filename el nombre del archivo. "
              "Usá este tool SOLO cuando el usuario solicite explícitamente un reporte, archivo o exportación.",
         func=generate_portfolio_report,
     )

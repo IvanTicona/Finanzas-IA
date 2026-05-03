@@ -1,3 +1,4 @@
+import ast
 import sqlite3
 import csv
 
@@ -23,8 +24,10 @@ def get_schema(conn: sqlite3.Connection, table_name: str | None = None) -> str:
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     return str([table[0] for table in cursor.fetchall()])
 
-def generate_portfolio_report(data: list[tuple], filename: str) -> str:
+def generate_portfolio_report(data: list[tuple] | str, filename: str) -> str:
     try:
+        if isinstance(data, str):
+            data = ast.literal_eval(data)
         with open(filename, "w", newline="", encoding="utf-8") as f:
             csv.writer(f).writerows(data)
         return f"Reporte generado exitosamente en '{filename}'."
