@@ -36,8 +36,9 @@ def configure_llm():
     dspy.settings.configure(lm=llm)
     return llm
 
+configure_llm()
+
 def create_agent(conn: sqlite3.Connection, query_history: list[str] | None = None) -> dspy.Module:
-    configure_llm()
 
     execute_sql_tool = dspy.Tool(
         name="execute_sql",
