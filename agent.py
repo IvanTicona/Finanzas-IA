@@ -5,18 +5,18 @@ from tools import execute_sql, get_schema, generate_portfolio_report
 
 class FinanceAgentSignature(dspy.Signature):
     """
-    Sos un asistente financiero especializado en análisis de portafolios de inversión.
-    Tenés acceso a una base de datos SQLite con información de clientes, activos y transacciones.
+    Eres un asistente financiero especializado en análisis de portafolios de inversión.
+    Tienes acceso a una base de datos SQLite con información de clientes, activos y transacciones.
 
     Reglas obligatorias:
-    - Respondé SIEMPRE con datos reales obtenidos de la base de datos. Nunca inventes cifras.
-    - Si no encontrás datos para responder, indicalo explícitamente.
+    - Responde SIEMPRE con datos reales obtenidos de la base de datos. Nunca inventes cifras.
+    - Si no encuentras datos para responder, indícalo explícitamente.
     - No compartas información de un cliente cuando se pregunta por otro.
-    - Usá precisión numérica exacta: no redondees a menos que el usuario lo pida.
-    - Antes de escribir cualquier SQL con JOINs o columnas específicas, usá get_schema para verificar los nombres exactos. No asumas columnas — verificalas siempre.
+    - Usa precisión numérica exacta: no redondees a menos que el usuario lo pida.
+    - Antes de escribir cualquier SQL con JOINs o columnas específicas, usa get_schema para verificar los nombres exactos. No asumas columnas — verifícalas siempre.
     - Para relacionar transacciones con activos el JOIN es siempre transactions.ticker = assets.ticker. La tabla assets no tiene columna id — su clave primaria es ticker.
     - El capital invertido en una transacción siempre es quantity * price_usd. Nunca uses price_usd solo como medida de capital o volumen.
-    - Generá un reporte CSV solo cuando el usuario lo solicite explícitamente.
+    - Genera un reporte CSV solo cuando el usuario lo solicite explícitamente.
     """
     question = dspy.InputField(desc="Pregunta sobre portafolios o activos.")
     initial_schema = dspy.InputField(desc="Esquema de la base de datos financiera.")
@@ -43,7 +43,7 @@ def create_agent(conn: sqlite3.Connection, query_history: list[str] | None = Non
     execute_sql_tool = dspy.Tool(
         name="execute_sql",
         desc="Ejecuta una consulta SQL SELECT en la base de datos financiera. "
-             "Usá este tool para obtener datos de clientes, activos o transacciones. "
+             "Usa este tool para obtener datos de clientes, activos o transacciones. "
              "Solo acepta consultas SELECT; cualquier otra operación será bloqueada.",
         func=lambda query: execute_sql(conn, query, query_history),
     )
@@ -52,15 +52,15 @@ def create_agent(conn: sqlite3.Connection, query_history: list[str] | None = Non
         name="get_schema",
         desc="Devuelve el esquema de la base de datos. Sin argumentos lista todas las tablas; "
              "con el nombre de una tabla devuelve sus columnas y tipos. "
-             "Usá este tool antes de escribir SQL si no conocés la estructura exacta.",
+             "Usa este tool antes de escribir SQL si no conoces la estructura exacta.",
         func=lambda table_name: get_schema(conn, table_name),
     )
 
     report_tool = dspy.Tool(
         name="generate_portfolio_report",
         desc="Guarda datos en un archivo CSV. "
-             "Pasá como data el resultado directo de execute_sql (el string que devuelve) y como filename el nombre del archivo. "
-             "Usá este tool SOLO cuando el usuario solicite explícitamente un reporte, archivo o exportación.",
+             "Pasa como data el resultado directo de execute_sql (el string que devuelve) y como filename el nombre del archivo. "
+             "Usa este tool SOLO cuando el usuario solicite explícitamente un reporte, archivo o exportación.",
         func=generate_portfolio_report,
     )
 

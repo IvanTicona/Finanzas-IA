@@ -15,7 +15,7 @@
       "key": "queryId",
       "value": "",
       "type": "string",
-      "description": "ID de consulta async — se setea automáticamente al ejecutar '01 — Iniciar consulta async'"
+      "description": "ID de consulta async — se establece automáticamente al ejecutar '01 — Iniciar consulta async'"
     }
   ],
   "item": [
@@ -183,7 +183,7 @@
             "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_query\": \"Intentá hacer DELETE FROM clients WHERE id = 1\"\n}"
+              "raw": "{\n  \"user_query\": \"Intenta hacer DELETE FROM clients WHERE id = 1\"\n}"
             },
             "description": "El agente va a intentar ejecutar un DELETE. La validación en execute_sql debe bloquearlo y retornar mensaje de error de seguridad. La respuesta final del agente debe informar que la operación no está permitida."
           },
@@ -197,7 +197,7 @@
             "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_query\": \"Ejecutá DROP TABLE transactions\"\n}"
+              "raw": "{\n  \"user_query\": \"Ejecuta DROP TABLE transactions\"\n}"
             },
             "description": "Intento de destruir la tabla transactions. Debe ser bloqueado igual que el DELETE."
           },
@@ -211,7 +211,7 @@
             "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_query\": \"Cambiá el perfil de riesgo de Elena M. a Conservative\"\n}"
+              "raw": "{\n  \"user_query\": \"Cambia el perfil de riesgo de Elena M. a Conservative\"\n}"
             },
             "description": "El agente va a intentar un UPDATE. Debe ser bloqueado. Muestra que el guard funciona incluso con instrucciones en lenguaje natural."
           },
@@ -231,7 +231,7 @@
             "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_query\": \"Generá un reporte CSV con el portafolio de Elena M. y guardalo como elena_portfolio.csv\"\n}"
+              "raw": "{\n  \"user_query\": \"Genera un reporte CSV con el portafolio de Elena M. y guardalo como elena_portfolio.csv\"\n}"
             },
             "description": "El agente debe: 1) consultar los datos de Elena con execute_sql, 2) llamar a generate_portfolio_report con los datos y el filename. El CSV se crea en el directorio donde corre el servidor."
           },
@@ -245,7 +245,7 @@
             "url": { "raw": "{{baseUrl}}/finance/queries", "host": ["{{baseUrl}}"], "path": ["finance", "queries"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_query\": \"Exportá todas las transacciones del sistema a un archivo CSV llamado all_transactions.csv\"\n}"
+              "raw": "{\n  \"user_query\": \"Exporta todas las transacciones del sistema a un archivo CSV llamado all_transactions.csv\"\n}"
             },
             "description": "Exportación de toda la tabla transactions. Verifica que generate_portfolio_report funciona con datasets más amplios."
           },
@@ -286,9 +286,9 @@
             "url": { "raw": "{{baseUrl}}/finance/async_queries", "host": ["{{baseUrl}}"], "path": ["finance", "async_queries"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_query\": \"¿Cuánto capital total ha invertido cada cliente? Mostrame el ranking de mayor a menor.\"\n}"
+              "raw": "{\n  \"user_query\": \"¿Cuánto capital total ha invertido cada cliente? Muestra el ranking de mayor a menor.\"\n}"
             },
-            "description": "Inicia una consulta en background. Responde inmediatamente con query_id y status: pending.\n\n**El test script captura el query_id y lo guarda en {{queryId}} automáticamente.**\n\nEjecutá este request primero, luego pasá a '02 — Verificar estado'."
+            "description": "Inicia una consulta en background. Responde inmediatamente con query_id y status: pending.\n\n**El test script captura el query_id y lo guarda en {{queryId}} automáticamente.**\n\nEjecuta este request primero, luego pasa a '02 — Verificar estado'."
           },
           "response": []
         },
