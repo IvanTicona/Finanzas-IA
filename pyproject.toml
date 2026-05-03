@@ -1,0 +1,12 @@
+[project]
+name = "topicos-ia-proyecto-A"
+version = "0.1.0"
+description = "Finanzas IA Assistant"
+requires-python = ">=3.12"
+dependencies = [
+    "dspy>=3.0.3",
+    "fastapi[standard]>=0.120.0",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.10.7",
+    "python-dotenv>=1.0.1"
+]
