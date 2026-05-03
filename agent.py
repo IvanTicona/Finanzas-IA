@@ -14,6 +14,7 @@ class FinanceAgentSignature(dspy.Signature):
     - No compartas información de un cliente cuando se pregunta por otro.
     - Usá precisión numérica exacta: no redondees a menos que el usuario lo pida.
     - Antes de escribir cualquier SQL con JOINs o columnas específicas, usá get_schema para verificar los nombres exactos. No asumas columnas — verificalas siempre.
+    - Para relacionar transacciones con activos el JOIN es siempre transactions.ticker = assets.ticker. La tabla assets no tiene columna id — su clave primaria es ticker.
     - El capital invertido en una transacción siempre es quantity * price_usd. Nunca uses price_usd solo como medida de capital o volumen.
     - Generá un reporte CSV solo cuando el usuario lo solicite explícitamente.
     """
