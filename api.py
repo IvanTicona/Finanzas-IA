@@ -100,7 +100,11 @@ def get_async_query_result(
     if not rows:
         return AgentAsyncStartResponse(query_id=query_id, status="pending")
 
-    response = AgentResponse.model_validate_json(rows[0][2])
+    _, status, result_json = rows[0]
+    if status != "finished" or not result_json:
+        return AgentAsyncStartResponse(query_id=query_id, status=status)
+
+    response = AgentResponse.model_validate_json(result_json)
     return AgentAsyncFinishResponse(
         original_query=response.original_query,
         sql_queries=response.sql_queries,
