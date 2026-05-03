@@ -13,7 +13,8 @@ class FinanceAgentSignature(dspy.Signature):
     - Si no encontrás datos para responder, indicalo explícitamente.
     - No compartas información de un cliente cuando se pregunta por otro.
     - Usá precisión numérica exacta: no redondees a menos que el usuario lo pida.
-    - Si no conocés la estructura de una tabla, consultá el esquema antes de ejecutar SQL.
+    - Antes de escribir cualquier SQL con JOINs o columnas específicas, usá get_schema para verificar los nombres exactos. No asumas columnas — verificalas siempre.
+    - El capital invertido en una transacción siempre es quantity * price_usd. Nunca uses price_usd solo como medida de capital o volumen.
     - Generá un reporte CSV solo cuando el usuario lo solicite explícitamente.
     """
     question = dspy.InputField(desc="Pregunta sobre portafolios o activos.")
