@@ -2,8 +2,8 @@ import sqlite3
 import csv
 
 def execute_sql(conn: sqlite3.Connection, query: str, query_history: list[str] | None = None) -> str:
-    # ===> (3.4) RETO DE SEGURIDAD: Solo permitir SELECT
-    # Si la consulta no empieza con SELECT, retornar un mensaje de error.
+    if not query.strip().upper().startswith("SELECT"):
+        return "Error de seguridad: solo se permiten consultas SELECT. Operación bloqueada."
 
     if query_history is not None: query_history.append(query)
     try:
@@ -24,9 +24,9 @@ def get_schema(conn: sqlite3.Connection, table_name: str | None = None) -> str:
     return str([table[0] for table in cursor.fetchall()])
 
 def generate_portfolio_report(data: list[tuple], filename: str) -> str:
-    """
-    ===> (1.2) TU IMPLEMENTACIÓN AQUÍ
-    Debe guardar los datos de un portafolio en un archivo CSV.
-    """
-    print(f"   [Tool Action] Generando reporte en {filename}...")
-    return "Herramienta no implementada aún."
+    try:
+        with open(filename, "w", newline="", encoding="utf-8") as f:
+            csv.writer(f).writerows(data)
+        return f"Reporte generado exitosamente en '{filename}'."
+    except Exception as e:
+        return f"Error al generar el reporte: {e}"

@@ -5,7 +5,16 @@ from tools import execute_sql, get_schema, generate_portfolio_report
 
 class FinanceAgentSignature(dspy.Signature):
     """
-    ====> (1.1.1) TU DESCRIPCIÓN/PROMPT PARA EL ASISTENTE FINANCIERO AQUÍ
+    Sos un asistente financiero especializado en análisis de portafolios de inversión.
+    Tenés acceso a una base de datos SQLite con información de clientes, activos y transacciones.
+
+    Reglas obligatorias:
+    - Respondé SIEMPRE con datos reales obtenidos de la base de datos. Nunca inventes cifras.
+    - Si no encontrás datos para responder, indicalo explícitamente.
+    - No compartas información de un cliente cuando se pregunta por otro.
+    - Usá precisión numérica exacta: no redondees a menos que el usuario lo pida.
+    - Si no conocés la estructura de una tabla, consultá el esquema antes de ejecutar SQL.
+    - Generá un reporte CSV solo cuando el usuario lo solicite explícitamente.
     """
     question = dspy.InputField(desc="Pregunta sobre portafolios o activos.")
     initial_schema = dspy.InputField(desc="Esquema de la base de datos financiera.")
@@ -30,21 +39,27 @@ def create_agent(conn: sqlite3.Connection, query_history: list[str] | None = Non
 
     execute_sql_tool = dspy.Tool(
         name="execute_sql",
-        desc="", # ===> (1.1.2) TU DESCRIPCIÓN AQUÍ
+        desc="Ejecuta una consulta SQL SELECT en la base de datos financiera. "
+             "Usá este tool para obtener datos de clientes, activos o transacciones. "
+             "Solo acepta consultas SELECT; cualquier otra operación será bloqueada.",
         func=lambda query: execute_sql(conn, query, query_history),
     )
 
     get_schema_tool = dspy.Tool(
         name="get_schema",
-        desc="", # ===> (1.1.2) TU DESCRIPCIÓN AQUÍ
+        desc="Devuelve el esquema de la base de datos. Sin argumentos lista todas las tablas; "
+             "con el nombre de una tabla devuelve sus columnas y tipos. "
+             "Usá este tool antes de escribir SQL si no conocés la estructura exacta.",
         func=lambda table_name: get_schema(conn, table_name),
     )
 
     report_tool = dspy.Tool(
         name="generate_portfolio_report",
-        desc="", # ===> TU DESCRIPCIÓN AQUÍ
-        func=generate_portfolio_report
+        desc="Guarda datos de un portafolio en un archivo CSV. "
+             "Recibe una lista de tuplas con los datos y el nombre del archivo de destino. "
+             "Usá este tool SOLO cuando el usuario solicite explícitamente un reporte, archivo o exportación.",
+        func=generate_portfolio_report,
     )
 
-    all_tools = [execute_sql_tool, get_schema_tool] # Agrega report_tool cuando esté lista
+    all_tools = [execute_sql_tool, get_schema_tool, report_tool]
     return FinanceAgent(tools=all_tools)
